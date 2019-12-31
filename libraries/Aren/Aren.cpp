@@ -1,4 +1,10 @@
-// Check whether to include the Arduino Library
+/*
+ * -- AREN Source File
+ * -- Derived from the open source project, OttoDIY available at https://www.ottodiy.com
+ * 
+ */
+
+// -- Check whether to include the Arduino Library
 #if defined(ARDUINO) && ARDUINO >= 100
 #include "Arduino.h"
 #else
@@ -6,15 +12,15 @@
 #include <pins_arduino.h>
 #endif
 
-// Include headers
+// -- Include headers
 #include <Aren.h>
 
-void Aren::init(int YL, int YR, int RL, int RR, bool load_calibration, int NoiseSensor, int Buzzer, int USTrigger, int USEcho)
+void Aren::init(int LL, int RL, int LF, int RF, bool load_calibration, int Buzzer, int USTrigger, int USEcho)
 {
-  servo_pins[0] = YL;
-  servo_pins[1] = YR;
-  servo_pins[2] = RL;
-  servo_pins[3] = RR;
+  servo_pins[0] = LL;
+  servo_pins[1] = RL;
+  servo_pins[2] = LF;
+  servo_pins[3] = RF;
 
   attachServos();
   isResting = false;
@@ -31,22 +37,22 @@ void Aren::init(int YL, int YR, int RL, int RR, bool load_calibration, int Noise
   }
 
   for (int i = 0; i < 4; i++)
+  {
     servo_position[i] = 90;
+  }
 
-  //US sensor init with the pins:
-  us.init(USTrigger, USEcho);
+  // US sensor init with the pins:
+  Aren::us.init(USTrigger, USEcho);
 
-  //Buzzer & noise sensor pins:
+  // Buzzer pins:
   pinBuzzer = Buzzer;
-  pinNoiseSensor = NoiseSensor;
-
   pinMode(Buzzer, OUTPUT);
-  pinMode(NoiseSensor, INPUT);
 }
 
 ///////////////////////////////////////////////////////////////////
 //-- ATTACH & DETACH FUNCTIONS ----------------------------------//
 ///////////////////////////////////////////////////////////////////
+
 void Aren::attachServos()
 {
   servo[0].attach(servo_pins[0]);
@@ -66,6 +72,7 @@ void Aren::detachServos()
 ///////////////////////////////////////////////////////////////////
 //-- OSCILLATORS TRIMS ------------------------------------------//
 ///////////////////////////////////////////////////////////////////
+
 void Aren::setTrims(int YL, int YR, int RL, int RR)
 {
   servo[0].SetTrim(YL);
@@ -85,6 +92,7 @@ void Aren::saveTrimsOnEEPROM()
 ///////////////////////////////////////////////////////////////////
 //-- BASIC MOTION FUNCTIONS -------------------------------------//
 ///////////////////////////////////////////////////////////////////
+
 void Aren::_moveServos(int time, int servo_target[])
 {
   attachServos();
@@ -171,6 +179,7 @@ void Aren::_execute(int A[4], int O[4], int T, double phase_diff[4], float steps
 ///////////////////////////////////////////////////////////////////
 //-- HOME = Aren at rest position -------------------------------//
 ///////////////////////////////////////////////////////////////////
+
 void Aren::home()
 {
   if (isResting == false)
@@ -204,28 +213,6 @@ void Aren::setRestState(bool state)
 float Aren::getDistance()
 {
   return us.read();
-}
-
-//---------------------------------------------------------
-//-- getNoise: return noise sensor measure
-//---------------------------------------------------------
-int Aren::getNoise()
-{
-  int noiseLevel = 0;
-  int noiseReadings = 0;
-  int numReadings = 2;
-
-  noiseLevel = analogRead(pinNoiseSensor);
-
-  for (int i = 0; i < numReadings; i++)
-  {
-    noiseReadings += analogRead(pinNoiseSensor);
-    delay(4); // delay in between reads for stability
-  }
-
-  noiseLevel = noiseReadings / numReadings;
-
-  return noiseLevel;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -754,16 +741,8 @@ void Aren::flapping(float steps, int T, int h, int dir)
   _execute(A, O, T, phase_diff, steps);
 }
 
-/*
- *
- * 
- * EXPERIMENTAL MOVES
- * 
- * 
- */
-
 //---------------------------------------------------------
-//--  Aren motion: Shuffle EXPERIMENTAL-TESTED
+//--  Aren motion: Shuffle
 //--  Parameters:
 //--    steps: Number of steps
 //--    T: Time Period
@@ -779,7 +758,7 @@ void Aren::shuffle(float steps, int T, int dir)
 }
 
 //---------------------------------------------------------
-//--  Aren motion: Kick EXPERIMENTAL-TESTED
+//--  Aren motion: Kick
 //--  Parameters:
 //--    steps: Number of steps
 //--    T: Time Period
@@ -815,7 +794,7 @@ void Aren::kick(float steps, int T, int dir)
 }
 
 //---------------------------------------------------------
-//--  Aren motion: Diagonal Lean Right EXPERIMENTAL-TESTED
+//--  Aren motion: Diagonal Lean Right
 //--  Parameters:
 //--    steps: Number of steps
 //--    T: Time Period
@@ -831,7 +810,7 @@ void Aren::diagonalLeanBackRight(float steps, int T)
 }
 
 //---------------------------------------------------------
-//--  Aren motion: Tap EXPERIMENTAL-TESTED
+//--  Aren motion: Tap
 //--  Parameters:
 //--    steps: Number of steps
 //--    T: Time Period
@@ -860,7 +839,7 @@ void Aren::tap(float steps, int T, int dir)
 }
 
 //---------------------------------------------------------
-//--  Aren motion: Foot Wave EXPERIMENTAL-TESTED
+//--  Aren motion: Foot Wave
 //--  Parameters:
 //--    steps: Number of steps
 //--    T: Time Period

@@ -1,19 +1,11 @@
 #include "US.h"
 
-//****** US ******//
-US::US(){
-}
-
-US::US(int pinTrigger, int pinEcho){
-  US::init(pinTrigger,pinEcho);
-}
-
 void US::init(int pinTrigger, int pinEcho)
 {
   _pinTrigger = pinTrigger;
   _pinEcho = pinEcho;
-  pinMode( _pinTrigger , OUTPUT );
-  pinMode( _pinEcho , INPUT );
+  pinMode(_pinTrigger , OUTPUT);
+  pinMode(_pinEcho , INPUT);
 }
 
 long US::TP_init()
@@ -27,10 +19,9 @@ long US::TP_init()
     return microseconds;
 }
 
-float US::read(){
+float US::read() {
   long microseconds = US::TP_init();
-  long distance;
-  distance = microseconds/29/2;
+  long distance = microseconds/29/2;
   if (distance == 0){
     distance = 999;
   }

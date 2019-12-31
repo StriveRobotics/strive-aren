@@ -1,63 +1,74 @@
 /*
- * AREN Bluetooth Test 3
- * Continues running until "stop" is received from the phone
- * Strive Robotics Dec 2019 GPL license
+ * -- AREN Bluetooth Connection & Control Program
+ * 
+ * -- ABOUT
+ *    For controlling AREN via Bluetooth through the basic mobile application provided
+ * 
  */
 
 #include <Aren.h>
 #include <SoftwareSerial.h>
 
-/* Pin number constants */
-#define PIN_Buzzer 13
-#define PIN_Trigger 8
-#define PIN_Echo 9
-#define PIN_NoiseSensor A6
-#define PIN_YL 2 //servo[2]
-#define PIN_YR 3 //servo[3]
-#define PIN_RL 4 //servo[4]
-#define PIN_RR 5 //servo[5]
+// -- Pin number constants specification
+#define PIN_LL 2      // Left leg
+#define PIN_RL 3      // Right leg
+#define PIN_LF 4      // Left foot
+#define PIN_RF 5      // Right foot
+#define PIN_Buzzer 13 // Buzzer
+#define PIN_Trigger 8 // Ultrasound Trigger
+#define PIN_Echo 9    // Ultrasound Echo
 
-/* Aren & BtSerial object */
+// -- AREN and Bluetooth Serial Object Creation
 Aren Aren;
-SoftwareSerial BtSerial(0, 1); // RX, TX
+SoftwareSerial BtSerial(0, 1); // BtSerial(RX: Receive Pin, TX: Transmit Pin)
 
-/* Global Variables */
-const uint8_t bufferLimit = 32;
-char receivedData[bufferLimit];
-char startMarker = '<';
-char endMarker = '>';
+// -- Global Variables Declaration
+const uint8_t bufferLimit = 32; // Declaring the maximum number of characters the buffer will hold
+char receivedData[bufferLimit]; // Where the transmitted data will be stored (Has a max size of 32 characters)
+char startMarker = '<';         // Marker to denote start of data transmission from application
+char endMarker = '>';           // Marker to denote end of data transmission from application
 
-boolean newDataFlag = false;
-boolean rxInProgressFlag = false;
+boolean newDataFlag = false;      // Flag to signal to the program that there is a new command to be executed
+boolean rxInProgressFlag = false; // Flag to signal to the program loop that data is being transmitted from the phone and written
 
-char ACTIONTYPE[8] = {'z'};
-uint16_t SPEED = 1000;
-uint16_t CYCLES = 1;
-int8_t DIRECTION = 1;
-uint8_t HEIGHT = 15;
+char ACTIONTYPE[8] = {'z'}; // To store the type of action for execution. Has default value of character 'z' which represents "Stop, nothing to execute"
+uint16_t SPEED = 1000;      // To store the speed of action. Has a default value of 1000
+uint16_t CYCLES = 1;        // To store the number of cycles for a action. Has a default value of 1
+int8_t DIRECTION = 1;       // To store the direction parameter. Has a default value of 1
+uint8_t HEIGHT = 15;        // To store the height parameter. Has a default value of 15 degrees
 
-/* Setup */
+// -- Program Setup
 void setup()
 {
+  // Open the respective Serial ports at stated data rate
   Serial.begin(9600);
   BtSerial.begin(9600);
 
-  // Yl, YR, Rl, RR, load-calibration, noise sensor, buzzer, ultrasonic trigger, ultrasonic echo
-  Aren.init(PIN_YL, PIN_YR, PIN_RL, PIN_RR, true, PIN_NoiseSensor, PIN_Buzzer, PIN_Trigger, PIN_Echo);
+  // Initialise the AREN
+  Aren.init(PIN_LL, PIN_RL, PIN_LF, PIN_RF, true, PIN_Buzzer, PIN_Trigger, PIN_Echo);
   Aren.home();
   Aren.sing(S_mode3);
   Serial.println("AREN is ready");
 }
 
-/* Main Loop */
+// -- Main Program Loop
 void loop()
 {
   receiveSerialData();
   handleSerialData();
 }
 
-/* Functions */
+// -- Functions
 
+/*
+  FUNCTION
+  void receiveSerialData()
+ 
+  For handling the receiving of serial data from the bluetooth module.
+  Looks for the start marker '<' and will start the saving of the data following the marker into receivedData array.
+  Stops saving to the receivedData array once it receives the end marker '>'.
+  Will also change the newDataFlag to true to get the program to handle the data.
+*/
 void receiveSerialData()
 {
   char dataIn;
@@ -97,9 +108,15 @@ void receiveSerialData()
       rxInProgressFlag = true;
     }
   }
-  // delay(50);
 }
 
+/*
+  FUNCTION
+  void handleSerialData()
+ 
+  If there is new data, which is flagged by the newDataFlag, this will call the parseData() function to parse the data. After parsing the data, it will set the newDataFlag back to false to say that it has finished parsing.
+  This function then calls the execute function to excute based on the parsed data. By default, the action type is 'z' which represents "Stop, do nothing".
+*/
 void handleSerialData()
 {
   if (newDataFlag == true)
@@ -107,9 +124,18 @@ void handleSerialData()
     parseData();
     newDataFlag = false;
   }
-  execute(ACTIONTYPE[0], SPEED, 1, DIRECTION, HEIGHT);
+  execute(ACTIONTYPE[0], SPEED, CYCLES, DIRECTION, HEIGHT);
 }
 
+/*
+  FUNCTION
+  void parseData()
+ 
+  Will parse the four parameters transmitted by the application to the Bluetooth module and save it the corresponding global variables
+  They are the "Action Type", "Duration/Speed", "Direction of Movement" (if applicable), and "Height of Movement" (if applicable)
+  
+  Note that the method atol() for converting a C-type string to a long integer should return 0 should there be no valid conversion
+*/
 void parseData()
 {
   char *strtokIndex; // this is used by strtok() as an index
@@ -150,7 +176,7 @@ void parseData()
       DIRECTION = RIGHT;
       break;
     default:
-      Serial.println("Unexpected error, unknown direction input!");
+      Serial.println("Unexpected error: The direction input specified is not valid!");
       break;
     }
   }
@@ -160,13 +186,29 @@ void parseData()
   Serial.println("Height: " + (String)HEIGHT);
 }
 
+/*
+  FUNCTION
+  void execute(5 parameters)
+
+  Will execute a valid action based on the received data.
+
+  Parameters (Name/Type):
+    actionType  character
+    speed       unsigned 16 bit integer
+    cycles      unsigned 16 bit integer
+    direction   signed 8 bit integer
+    height      unsigned 8 bit integer
+*/
 void execute(char actionType, uint16_t speed, uint16_t cycles, int8_t direction, uint8_t height)
 {
   if (actionType == 'z')
   {
+    // 'z' means no action to be taken
+    // Therefore, don't do anything and jump out of the function
     return;
   }
 
+  // This is for debugging and troubleshooting
   Serial.println("Execute data parameter actionType: " + (String)actionType);
   Serial.println("Execute data parameter speed: " + (String)speed);
   Serial.println("Execute data parameter cycle: " + (String)cycles);
@@ -302,7 +344,7 @@ void execute(char actionType, uint16_t speed, uint16_t cycles, int8_t direction,
     break;
 
   default:
-    Serial.println("Unexpected error, cannot execute: Direction not recognised!");
+    Serial.println("Unexpected error: Action Type is not valid!");
     break;
   }
 }

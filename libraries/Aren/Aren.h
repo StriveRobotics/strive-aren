@@ -1,6 +1,6 @@
 /*
  * -- AREN Header File
- * -- Based on the open source project, Otto available at https://www.ottodiy.com
+ * -- Derived from the open source project, OttoDIY available at https://www.ottodiy.com
  * 
  */
 
@@ -14,8 +14,8 @@
 #include "Sounds.h"
 
 
-//-- Constants
-// Forward/Backward/Left/Right for use in specifying direction
+// -- Constants
+//    Forward/Backward/Left/Right for use in specifying direction
 #define FORWARD 1
 #define BACKWARD -1
 #define LEFT 1
@@ -25,7 +25,7 @@ class Aren {
   public:
 
     // Initialisation
-    void init(int YL, int YR, int RL, int RR, bool load_calibration, int NoiseSensor, int Buzzer, int USTrigger, int USEcho);
+    void init(int LL, int RL, int LF, int RF, bool load_calibration, int Buzzer, int USTrigger, int USEcho);
 
     // Attach & detach functions
     void attachServos();
@@ -46,7 +46,6 @@ class Aren {
     
     // Sensor functions
     float getDistance(); //US sensor
-    int getNoise();      //Noise Sensor
 
     // Sounds
     void _tone(float noteFrequency, long noteDuration, int silentDuration);
@@ -86,7 +85,6 @@ class Aren {
     int servo_position[4];
 
     int pinBuzzer;
-    int pinNoiseSensor;
     
     unsigned long final_time;
     unsigned long partial_time;
