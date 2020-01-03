@@ -1,6 +1,5 @@
 #ifndef US_h
 #define US_h
-#include "Arduino.h"
 
 class US
 {

@@ -11,7 +11,7 @@
 #include <Oscillator.h>
 #include <EEPROM.h>
 #include <US.h>
-#include "Sounds.h"
+#include <Sounds.h>
 
 
 // -- Constants

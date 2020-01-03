@@ -44,6 +44,7 @@ void loop()
     delay(500);
     Aren.turn(3, 1000, 1);
     delay(500);
+    isObstacleDetected = false;
   }
   else
   {
