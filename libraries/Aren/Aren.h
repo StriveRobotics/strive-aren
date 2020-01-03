@@ -21,6 +21,10 @@
 #define LEFT 1
 #define RIGHT -1
 
+#define LARGE 30
+#define MEDIUM 15
+#define SMALL 5
+
 class Aren {
   public:
 
