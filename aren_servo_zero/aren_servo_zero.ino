@@ -11,7 +11,7 @@
 
 // -- Pin number constants specification
 #define PIN_LL 2      // Left leg
-#define PIN_RL 3      // Right leg
+#define PIN_RL 6      // Right leg
 #define PIN_LF 4      // Left foot
 #define PIN_RF 5      // Right foot
 #define PIN_Buzzer 13 // Buzzer

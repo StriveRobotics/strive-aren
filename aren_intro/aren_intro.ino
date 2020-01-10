@@ -16,7 +16,7 @@
 #define PIN_RF 5      // Right foot
 #define PIN_Buzzer 13 // Buzzer
 #define PIN_Trigger 8 // Ultrasound Trigger
-#define PIN_Echo 9    // Ultrasound Echo
+#define PIN_Echo 9    // Ultrasound Echo 
 
 // -- AREN Object Creation
 Aren Aren;
