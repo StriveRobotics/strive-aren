@@ -82,6 +82,8 @@ void setup()
   Serial.begin(9600);
   Aren.init(PIN_LL, PIN_RL, PIN_LF, PIN_RF, true, PIN_Buzzer, PIN_Trigger, PIN_Echo);
   Aren.home();
+  Aren.sing(S_mode3);
+  Serial.println("AREN is Ready");
 }
 
 // -- Main Program loop
