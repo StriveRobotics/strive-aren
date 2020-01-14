@@ -40,7 +40,7 @@ void setup()
 // -- Main Program Loop
 void loop()
 {
-  while (loopCount != endLoopCount)
+  while (loopCount < endLoopCount)
   {
     Aren.sing(S_mode3); // 00:00 Sync with the song by playing the song on the media device of your choice.
     delay(500);
@@ -53,6 +53,9 @@ void loop()
 
     loopCount++; // Increment the counter
   }
+  Aren.home();
+  delay(1000);
+  Aren.setRestState(false);
 }
 
 // -- Functions
