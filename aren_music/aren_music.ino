@@ -102,4 +102,5 @@ void loop()
 
   Aren.home();
   delay(4000);
+  Aren.setRestState(false);
 }
